@@ -1,5 +1,5 @@
 ﻿namespace Aulas.Models {
-   public class Professores {
+   public class Professores : Utilizadores {
 
       public Professores() {
          ListaUCs = new HashSet<UnidadesCurriculares>();

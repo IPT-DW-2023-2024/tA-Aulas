@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Aulas.Models {
-   public class Alunos {
+   public class Alunos : Utilizadores {
+      // um Aluno é um objeto do tipo Utilizadores
+      // um Aluno é um caso particular de Utlizadores
 
       public Alunos() {
          ListaInscricoes = new HashSet<Inscricoes>();
