@@ -50,25 +50,86 @@ namespace Aulas.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Nome,Logotipo")] Cursos cursos) {
-         
-         // falta fazer alguma coisa com o ficheiro do logótipo
+      public async Task<IActionResult> Create([Bind("Nome")] Cursos curso, IFormFile ImagemLogo) {
+         // a anotação [Bind] informa o servidor de quais os atributos
+         // que devem ser lidos do objeto que vem do browser
+
+         /* Guardar a imagem no disco rígido do Servidor
+          * Algoritmo
+          * 1- há ficheiro?
+          *    1.1 - não
+          *          devolvo controlo ao browser
+          *          com mensagem de erro
+          *    1.2 - sim
+          *          Será imagem (JPG,JPEG,PNG)?
+          *          1.2.1 - não
+          *                  uso logótipo pre-definido
+          *          1.2.2 - sim
+          *                  - determinar o nome da imagem
+          *                  - guardar esse nome na BD
+          *                  - guardar o ficheir no disco rígido
+          */
 
          // avalia se os dados recebido do browser estão
          // de acordo com o Model
          if (ModelState.IsValid) {
 
+            // vars auxiliares
+            string nomeImagem = "";
+            bool haImagem = false;
+
+            // há ficheiro?
+            if (ImagemLogo == null) {
+               // não há
+               // crio msg de erro
+               ModelState.AddModelError("",
+                  "Deve fornecer um logótipo");
+               // devolver controlo à View
+               return View(curso);
+            }
+            else {
+               // há ficheiro, mas é uma imagem?
+               if (!(ImagemLogo.ContentType == "image/png" ||
+                    ImagemLogo.ContentType == "image/jpeg"
+                  )) {
+                  // não
+                  // vamos usar uma imagem pre-definida
+                  curso.Logotipo = "logoCurso.png";
+               }
+               else {
+                  // há imagem
+                  haImagem = true;
+                  // gerar nome imagem
+                  Guid g = Guid.NewGuid();
+                  nomeImagem = g.ToString();
+                  string extensaoImagem = Path.GetExtension(ImagemLogo.FileName).ToLowerInvariant();
+                  nomeImagem += extensaoImagem;
+                  // guardar o nome do ficheiro na BD
+                  curso.Logotipo = nomeImagem;
+               }
+            }
+
+
             // adiciona à BD os dados vindos da View
-            _context.Add(cursos);
+            _context.Add(curso);
             // Commit
             await _context.SaveChangesAsync();
+
+            // guardar a imagem do logótipo
+            if (haImagem) {
+
+            }
+
+
+
+
             // redireciona o utilizador para a página de 'início'
             // dos Cursos
             return RedirectToAction(nameof(Index));
          }
          // se cheguei aqui é pq alguma coisa correu mal
          // devolve controlo à View, apresentando os dados recebidos
-         return View(cursos);
+         return View(curso);
       }
 
       // GET: Cursos/Edit/5

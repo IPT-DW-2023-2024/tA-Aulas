@@ -14,8 +14,12 @@
             o 'form' é o objeto que transporta os nossos dados
             para o Servidor
         *@
-        <form asp-action="Create">
-
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @*
+                NÃO ESQUECER:
+                qd se pretende enviar ficheiros para o Servidor
+                o FORM tem de ser formatado com enctype="multipart/form-data"
+            *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
          
             <div class="form-group">
@@ -26,7 +30,10 @@
 
             <div class="form-group">
                 <label asp-for="Logotipo" class="control-label"></label>
-                <input type="file" accept=".png,.jpg,.jpeg" class="form-control" />
+                <input type="file" 
+                       name="ImagemLogo"
+                       accept=".png,.jpg,.jpeg" 
+                       class="form-control" />
             <span asp-validation-for="Logotipo" class="text-danger"></span>
 
             </div>
