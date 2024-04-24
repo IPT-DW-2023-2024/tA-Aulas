@@ -9,6 +9,7 @@ namespace Aulas.Models {
    public class Inscricoes {
       // tabela do relacionamento N-M, COM atributos do relacionamento
 
+      [Display(Name ="Data Inscrição")]
       public DateTime DataInscricao { get; set; }
 
 
