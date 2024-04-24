@@ -15,8 +15,16 @@ namespace Aulas.Controllers {
       /// </summary>
       private readonly ApplicationDbContext _context;
 
-      public CursosController(ApplicationDbContext context) {
+      /// <summary>
+      /// objecto que contém os dados do Servidor
+      /// </summary>
+      private readonly IWebHostEnvironment _webHostEnvironment;
+
+      public CursosController(
+         ApplicationDbContext context,
+         IWebHostEnvironment webHostEnvironment) {
          _context = context;
+         _webHostEnvironment = webHostEnvironment;
       }
 
       // GET: Cursos
@@ -94,7 +102,7 @@ namespace Aulas.Controllers {
                   )) {
                   // não
                   // vamos usar uma imagem pre-definida
-                  curso.Logotipo = "logoCurso.png";
+                  curso.Logotipo = "logoCurso.jpg";
                }
                else {
                   // há imagem
@@ -117,7 +125,27 @@ namespace Aulas.Controllers {
 
             // guardar a imagem do logótipo
             if (haImagem) {
+               // encolher a imagem ao tamanho certo --> fazer pelos alunos
+               // procurar no NuGet
 
+               // determinar o local de armazenamento da imagem
+               string localizacaoImagem = _webHostEnvironment.WebRootPath;
+               // adicionar à raiz da parte web, o nome da pasta onde queremos guardar as imagens
+               localizacaoImagem = Path.Combine(localizacaoImagem, "Imagens");
+
+               // será que o local existe?
+               if (!Directory.Exists(localizacaoImagem)) {
+                  Directory.CreateDirectory(localizacaoImagem);
+               }
+
+               // atribuir ao caminho o nome da imagem
+               localizacaoImagem = Path.Combine(localizacaoImagem, nomeImagem);
+
+               // guardar a imagem no Disco Rígido
+               using var stream = new FileStream(
+                  localizacaoImagem, FileMode.Create
+                  );
+               await ImagemLogo.CopyToAsync(stream);
             }
 
 
