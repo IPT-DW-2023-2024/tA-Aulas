@@ -17,10 +17,10 @@ namespace Aulas.Models {
       /// atributo auxiliar para recolher os dados da Propina
       /// </summary>
       [NotMapped] // informa a EF para ignorar este atributo
-      [Required(ErrorMessage ="A {0} é de preenchimento obrigatório.")]
-      [Display(Name ="Propina")]
+      [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+      [Display(Name = "Propina")]
       [StringLength(9)]
-      [RegularExpression("[0-9]{1,6}([,.][0-9]{1,2})?", ErrorMessage ="Escreva um número com, no máximo 2 casas decimais, separadas por . ou ,")]
+      [RegularExpression("[0-9]{1,6}([,.][0-9]{1,2})?", ErrorMessage = "Escreva um número com, no máximo 2 casas decimais, separadas por . ou ,")]
       public string PropinasAux { get; set; }
 
       /// <summary>
@@ -28,6 +28,9 @@ namespace Aulas.Models {
       /// </summary>
       public decimal Propinas { get; set; }
 
+      [Display(Name ="Data Matrícula")]
+      [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+      [DataType(DataType.Date)]
       public DateTime DataMatricula { get; set; }
 
 

@@ -11,6 +11,8 @@ namespace Aulas.Models {
       public string Nome { get; set; }
 
       [Display(Name ="Data Nascimento")]
+      [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+      [DataType(DataType.Date)]
       public DateOnly DataNascimento { get; set; }
 
       [Display(Name ="Telemóvel")]
