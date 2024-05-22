@@ -44,6 +44,7 @@ namespace Aulas.Models {
       // que o atributo 'CursoFK' é uma FK em conjunto
       // com o atributo 'Curso'
       [ForeignKey(nameof(Curso))]
+      [Display(Name ="Curso")]
       public int CursoFK { get; set; } // FK para o Curso
       public Cursos Curso { get; set; } // FK para o Curso
 

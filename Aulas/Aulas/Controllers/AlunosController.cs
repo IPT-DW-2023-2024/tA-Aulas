@@ -55,11 +55,21 @@ namespace Aulas.Controllers {
       [HttpPost]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> Create([Bind("NumAluno,PropinasAux,DataMatricula,CursoFK,Nome,DataNascimento,Telemovel")] Alunos aluno) {
-         
-         if (ModelState.IsValid) {
+
+         // var. auxiliar
+         bool haErros = false;
+
+         if (aluno.CursoFK == -1) {
+            // não escolhi curso
+            ModelState.AddModelError("", "Escolha um curso, pf.");
+            haErros = true;
+         }
+
+
+         if (ModelState.IsValid && !haErros) {
 
             // transferir o valor de PropinasAux para Propinas
-            aluno.Propinas = Convert.ToDecimal( aluno.PropinasAux.Replace('.',',') );
+            aluno.Propinas = Convert.ToDecimal(aluno.PropinasAux.Replace('.', ','));
 
             _context.Add(aluno);
             await _context.SaveChangesAsync();
@@ -67,8 +77,8 @@ namespace Aulas.Controllers {
          }
 
          // se chego aqui é pq algo correu mal
-         ViewData["CursoFK"] = new SelectList(_context.Cursos.OrderBy(c=>c.Nome), "Id", "Nome", aluno.CursoFK);
-        
+         ViewData["CursoFK"] = new SelectList(_context.Cursos.OrderBy(c => c.Nome), "Id", "Nome", aluno.CursoFK);
+
          return View(aluno);
       }
 

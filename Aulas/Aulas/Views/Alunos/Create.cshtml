@@ -34,8 +34,11 @@
          </div>
 
          <div class="form-group">
+            @* mostra a 'dropdown' com a lista de Cursos *@
             <label asp-for="CursoFK" class="control-label"></label>
-            <select asp-for="CursoFK" class="form-control" asp-items="ViewBag.CursoFK"></select>
+            <select asp-for="CursoFK" class="form-control" asp-items="ViewBag.CursoFK">
+               <option value="-1">-- Escolha um curso, por favor --</option>
+            </select>
          </div>
 
          <div class="form-group">
@@ -44,10 +47,10 @@
             <span asp-validation-for="DataMatricula" class="text-danger"></span>
          </div>
          <div class="form-group">
-             @*
-                 vamos usar o atributo auxiliar
-                 e não o atributo verdadeiro da Propinas
-             *@
+            @*
+            vamos usar o atributo auxiliar
+            e não o atributo verdadeiro da Propinas
+            *@
             <label asp-for="PropinasAux" class="control-label"></label>
             <input asp-for="PropinasAux" class="form-control" />
             <span asp-validation-for="PropinasAux" class="text-danger"></span>
@@ -55,7 +58,7 @@
 
 
          <div class="form-group">
-             <br />
+            <br />
             <input type="submit" value="Adicionar" class="btn btn-primary" />
          </div>
       </form>
@@ -63,7 +66,7 @@
 </div>
 
 <div>
-    <br />
+   <br />
    <a asp-action="Index">voltar para trás</a>
 </div>
 
