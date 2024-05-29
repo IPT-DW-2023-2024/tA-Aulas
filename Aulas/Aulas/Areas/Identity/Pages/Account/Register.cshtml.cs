@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Aulas.Data;
 using Aulas.Models;
 
 using Microsoft.AspNetCore.Authentication;
@@ -20,6 +21,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Aulas.Areas.Identity.Pages.Account {
@@ -31,18 +33,22 @@ namespace Aulas.Areas.Identity.Pages.Account {
       private readonly ILogger<RegisterModel> _logger;
       private readonly IEmailSender _emailSender;
 
+      private readonly ApplicationDbContext _context;
+
       public RegisterModel(
           UserManager<IdentityUser> userManager,
           IUserStore<IdentityUser> userStore,
           SignInManager<IdentityUser> signInManager,
           ILogger<RegisterModel> logger,
-          IEmailSender emailSender) {
+          IEmailSender emailSender,
+          ApplicationDbContext context) {
          _userManager = userManager;
          _userStore = userStore;
          _emailStore = GetEmailStore();
          _signInManager = signInManager;
          _logger = logger;
          _emailSender = emailSender;
+         _context = context;
       }
 
       /// <summary>
@@ -114,19 +120,40 @@ namespace Aulas.Areas.Identity.Pages.Account {
          //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
       }
 
+      /// <summary>
+      /// Método que reage ao HTTP POST
+      /// </summary>
+      /// <param name="returnUrl"></param>
+      /// <returns></returns>
       public async Task<IActionResult> OnPostAsync(string returnUrl = null) {
          returnUrl ??= Url.Content("~/");
-         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+     
+         //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+      
+         
+         
          if(ModelState.IsValid) {
+
             var user = CreateUser();
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+           
+            // ação de, realmente, adicionar à BD (AspNetUsers) os dados do Utilizador
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if(result.Succeeded) {
+               // houve sucesso na criação do Utilizador
                _logger.LogInformation("User created a new account with password.");
 
+               // guardar os dados do Professor
+
+               _context.Add(Input.Professor);
+               await _context.SaveChangesAsync();
+
+
+               // preparar os dados para o envio do email
+               // ao utilizador para confirmar a conta criada
                var userId = await _userManager.GetUserIdAsync(user);
                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
