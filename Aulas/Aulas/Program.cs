@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-// define as especificações particulares da BD
+// define as especificaï¿½ï¿½es particulares da BD
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 // define qual a BD que o projeto vai utilizar
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
