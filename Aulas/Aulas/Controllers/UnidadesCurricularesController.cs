@@ -28,14 +28,26 @@ namespace Aulas.Controllers {
             return NotFound();
          }
 
-         var unidadesCurriculares = await _context.UCs
-             .Include(u => u.Curso)
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (unidadesCurriculares == null) {
+
+
+         // Esta pesquisa aqui feita em LINQ
+         // é equivalente a esta, em SQL:
+         // SELECT *
+         // FROM UnidadesCurriculares uc INNER JOIN Cursos c ON uc.CursoFK = c.Id
+         //                              INNER JOIN ProfessoresUnidadesCurriculares puc
+         //                                         ON puc.UnidadeFK = uc.Id
+         //                              INNER JOIN Professores p ON puc.ProfessorFK = p.Id
+         // WHERE uc.Id=id
+         var unidadeCurricular = await _context.UCs
+                                               .Include(u => u.Curso)
+                                               .Include(u => u.ListaProfessores)
+                                               .FirstOrDefaultAsync(m => m.Id == id);
+
+         if (unidadeCurricular == null) {
             return NotFound();
          }
 
-         return View(unidadesCurriculares);
+         return View(unidadeCurricular);
       }
 
       // GET: UnidadesCurriculares/Create
@@ -87,7 +99,10 @@ namespace Aulas.Controllers {
             return RedirectToAction(nameof(Index));
          }
 
-         ViewData["CursoFK"] = new SelectList(_context.Cursos, "Id", "Nome", uc.CursoFK);
+         ViewData["CursoFK"] = new SelectList(_context.Cursos.OrderBy(c=>c.Id), "Id", "Nome", uc.CursoFK);
+         // obter a lista de professores existentes na BD
+         ViewData["ListaProfs"] = _context.Professores.OrderBy(p => p.Nome).ToList();
+
          return View(uc);
       }
 
