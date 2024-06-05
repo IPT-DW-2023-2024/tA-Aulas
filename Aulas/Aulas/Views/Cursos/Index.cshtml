@@ -1,52 +1,58 @@
 ﻿@model IEnumerable<Aulas.Models.Cursos>
 
 @{
-    ViewData["Title"] = "Cursos";
+   ViewData["Title"] = "Cursos";
 }
 
 <h1>Cursos</h1>
 
-<p>
-    <a asp-action="Create">Adicionar novo curso</a>
-</p>
+@if (User.Identity.IsAuthenticated) {
+   <p>
+      <a asp-action="Create">Adicionar novo curso</a>
+   </p>
+}
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Logotipo)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
+   <thead>
+      <tr>
+         <th>
+            @Html.DisplayNameFor(model => model.Nome)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.Logotipo)
+         </th>
+         <th></th>
+      </tr>
+   </thead>
+   <tbody>
+      @foreach (var item in Model) {
+         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Nome)
+               @Html.DisplayFor(modelItem => item.Nome)
             </td>
             <td>
-                @*
-                   @Html.DisplayFor(modelItem => item.Logotipo)
-                *@
+               @*
+            @Html.DisplayFor(modelItem => item.Logotipo)
+            *@
                <img src="~/Imagens/@Html.DisplayFor(modelItem => item.Logotipo)"
                     alt="logótipo do curso @Html.DisplayFor(modelItem => item.Nome)"
                     title="@Html.DisplayFor(modelItem => item.Nome)"
                     width="75px" />
-                    <br />
+               <br />
                <img src="~/Imagens/@item.Logotipo"
                     alt="logótipo do curso @item.Nome"
                     title="@item.Nome"
                     width="75px" />
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+               @if (User.Identity.IsAuthenticated) {
+                  <text>
+                     <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                     <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a> |
+                  </text>
+               }
+               <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
             </td>
-        </tr>
-}
-    </tbody>
+         </tr>
+      }
+   </tbody>
 </table>

@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Aulas.Data;
 using Aulas.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Aulas.Controllers {
+
+   [Authorize]
    public class CursosController : Controller {
       /// <summary>
       /// referência à BD do projeto
@@ -28,11 +31,13 @@ namespace Aulas.Controllers {
       }
 
       // GET: Cursos
+      [AllowAnonymous] // uma pessoa sem estar autenticada CONSEGUE aceder
       public async Task<IActionResult> Index() {
          return View(await _context.Cursos.ToListAsync());
       }
 
       // GET: Cursos/Details/5
+      [AllowAnonymous]
       public async Task<IActionResult> Details(int? id) {
          if (id == null) {
             return NotFound();

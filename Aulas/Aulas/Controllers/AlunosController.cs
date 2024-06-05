@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Aulas.Data;
 using Aulas.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Aulas.Controllers {
+
+
+   [Authorize] // apenas as pessoas AUTENTICADAS conseguem entrar
    public class AlunosController : Controller {
       private readonly ApplicationDbContext _context;
 
