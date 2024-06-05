@@ -7,19 +7,45 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Aulas.Data;
 using Aulas.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Aulas.Controllers {
+
+
+   [Authorize(Roles = "Professor,Administrativo")]
+   /*
+    *  [Authorize(Roles = "Professor")] --> apenas pessoas com o 'perfil' Professor consegue aceder
+    *  
+    *  [Authorize(Roles = "Professor,Administrativo")] --> apenas pessoas com o 'perfil' Professor OU com o 'perfil' Administrativo consegue aceder
+    *  
+    *  [Authorize(Roles = "Professor")] ------->
+    *  [Authorize(Roles = "Administrativo")] -->  apenas pessoas com o 'perfil' Professor E com o 'perfil' Administrativo consegue aceder
+    */
+
    public class UnidadesCurricularesController : Controller {
+
       private readonly ApplicationDbContext _context;
 
-      public UnidadesCurricularesController(ApplicationDbContext context) {
+      /// <summary>
+      /// objeto para interagir com os dados da pessoa autenticada
+      /// </summary>
+      private readonly UserManager<IdentityUser> _userManager;
+
+      public UnidadesCurricularesController(
+         ApplicationDbContext context,
+         UserManager<IdentityUser> userManager) {
          _context = context;
+         _userManager = userManager;
       }
 
       // GET: UnidadesCurriculares
       public async Task<IActionResult> Index() {
+
          var applicationDbContext = _context.UCs.Include(u => u.Curso);
          return View(await applicationDbContext.ToListAsync());
+
+
       }
 
       // GET: UnidadesCurriculares/Details/5
@@ -106,18 +132,67 @@ namespace Aulas.Controllers {
          return View(uc);
       }
 
+
+
+
+
+
       // GET: UnidadesCurriculares/Edit/5
       public async Task<IActionResult> Edit(int? id) {
          if (id == null) {
             return NotFound();
          }
 
-         var unidadesCurriculares = await _context.UCs.FindAsync(id);
-         if (unidadesCurriculares == null) {
+
+         if (User.IsInRole("Administrativo")) {
+            var uc = await _context.UCs.FindAsync(id);
+            if (uc == null) {
+               return NotFound();
+            }
+
+            ViewData["CursoFK"] = new SelectList(_context.Cursos.OrderBy(c => c.Nome), "Id", "Nome", uc.CursoFK);
+
+            // falta fazer a lista de Professores, como no método da criação
+
+            return View(uc);
+         }
+
+         // se chego aqui é pq sou professor
+         // será que tenho autorização de editar a UC?
+
+         // obter ID da pessoa autenticada
+         var userId =  _userManager.GetUserId(User);
+
+         // ID do Utilizador autenticado
+         var idProf=_context.Professores
+                            .Where(p=> p.UserID == userId)
+                            .FirstOrDefault()
+                            .Id;
+
+         // Investigar se o Professor está associado à UC
+         var unidadeCurricularComProf = _context.UCs
+                                 .Where(uc => uc.Id == id &&
+                                        uc.ListaProfessores.Any(p => p.Id == idProf))
+                                 .FirstOrDefault();
+
+         // se a UC não é nula, é pq o Professor está associado à UC
+         if (unidadeCurricularComProf != null) {
+            ViewData["CursoFK"] = new SelectList(_context.Cursos.OrderBy(c => c.Nome), "Id", "Nome", unidadeCurricularComProf.CursoFK);
+
+            // falta fazer a lista de Professores, como no método da criação
+
+            // enviar UC para a View
+            return View(unidadeCurricularComProf);
+         }
+         else {
+            // O professor naão está associado
+            // gerar Mensagem de erro
+            // notificar utilizador
+            // etc.
+
             return NotFound();
          }
-         ViewData["CursoFK"] = new SelectList(_context.Cursos, "Id", "Nome", unidadesCurriculares.CursoFK);
-         return View(unidadesCurriculares);
+
       }
 
       // POST: UnidadesCurriculares/Edit/5
