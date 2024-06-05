@@ -34,6 +34,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
    app.UseMigrationsEndPoint();
+
+   // Invocar o seed da BD
+   app.UseItToSeedSqlServer();
+
+
 }
 else {
    app.UseExceptionHandler("/Home/Error");
