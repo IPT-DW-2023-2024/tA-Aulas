@@ -18,11 +18,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
 
-
-
-
+// Ativar o uso de ROLES
+// .AddRoles<IdentityRole>()
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+   .AddRoles<IdentityRole>()
+   .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

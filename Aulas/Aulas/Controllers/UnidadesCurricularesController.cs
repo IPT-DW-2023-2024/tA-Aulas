@@ -7,8 +7,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Aulas.Data;
 using Aulas.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Aulas.Controllers {
+
+
+   [Authorize(Roles = "Professor")]
+   /*
+    *  [Authorize(Roles = "Professor")] --> apenas pessoas com o 'perfil' Professor consegue aceder
+    *  
+    *  [Authorize(Roles = "Professor,Administrativo")] --> apenas pessoas com o 'perfil' Professor OU com o 'perfil' Administrativo consegue aceder
+    *  
+    *  [Authorize(Roles = "Professor")] ------->
+    *  [Authorize(Roles = "Administrativo")] -->  apenas pessoas com o 'perfil' Professor E com o 'perfil' Administrativo consegue aceder
+    */
+
    public class UnidadesCurricularesController : Controller {
       private readonly ApplicationDbContext _context;
 
