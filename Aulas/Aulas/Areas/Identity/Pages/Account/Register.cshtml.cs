@@ -146,6 +146,11 @@ namespace Aulas.Areas.Identity.Pages.Account {
                // houve sucesso na criação do Utilizador
                _logger.LogInformation("User created a new account with password.");
 
+               // ###########################################
+               // Associar este utilizador à Role Professor
+               await _userManager.AddToRoleAsync(user, "Professor");
+               // ###########################################
+
                try {
                   // ***********************************
                   // guardar os dados do Professor
