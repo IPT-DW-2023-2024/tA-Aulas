@@ -25,7 +25,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Aulas.Areas.Identity.Pages.Account {
-   public class RegisterModel: PageModel {
+   public class RegisterModel : PageModel {
       private readonly SignInManager<IdentityUser> _signInManager;
       private readonly UserManager<IdentityUser> _userManager;
       private readonly IUserStore<IdentityUser> _userStore;
@@ -127,29 +127,49 @@ namespace Aulas.Areas.Identity.Pages.Account {
       /// <returns></returns>
       public async Task<IActionResult> OnPostAsync(string returnUrl = null) {
          returnUrl ??= Url.Content("~/");
-     
+
          //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-      
-         
-         
-         if(ModelState.IsValid) {
+
+
+
+         if (ModelState.IsValid) {
 
             var user = CreateUser();
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-           
+
             // ação de, realmente, adicionar à BD (AspNetUsers) os dados do Utilizador
             var result = await _userManager.CreateAsync(user, Input.Password);
 
-            if(result.Succeeded) {
+            if (result.Succeeded) {
                // houve sucesso na criação do Utilizador
                _logger.LogInformation("User created a new account with password.");
 
-               // guardar os dados do Professor
+               try {
+                  // ***********************************
+                  // guardar os dados do Professor
+                  // ***********************************
 
-               _context.Add(Input.Professor);
-               await _context.SaveChangesAsync();
+                  // criar uma ligação entre a tabela dos Utilizadores
+                  // (neste caso, um Professor) e a tabela da Autenticação
+                  Input.Professor.UserID = user.Id;
+
+                  // adicionar os dados do Professor à BD
+                  _context.Add(Input.Professor);
+                  await _context.SaveChangesAsync();
+                  // ***********************************
+               }
+               catch (Exception ex) {
+                  // É NECESSÁRIO TRATAR A EXCEÇÃO
+                  // DEFINIR A POLÍTICA, E AÇÕES, A EXECUTAR NESTA SITUAÇÃO
+                  // POR EXEMPLO:
+                  //    - apara o utilizador da tabela da Autenticação
+                  //    - gerar mensagens de erro para a pessoa que está a criar o registo
+                  //    - guardar os dados do Erro num LOG ou na BD
+                  //    - etc.
+                  throw;
+               }
 
 
                // preparar os dados para o envio do email
@@ -166,7 +186,7 @@ namespace Aulas.Areas.Identity.Pages.Account {
                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-               if(_userManager.Options.SignIn.RequireConfirmedAccount) {
+               if (_userManager.Options.SignIn.RequireConfirmedAccount) {
                   return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                }
                else {
@@ -174,7 +194,7 @@ namespace Aulas.Areas.Identity.Pages.Account {
                   return LocalRedirect(returnUrl);
                }
             }
-            foreach(var error in result.Errors) {
+            foreach (var error in result.Errors) {
                ModelState.AddModelError(string.Empty, error.Description);
             }
          }
@@ -195,7 +215,7 @@ namespace Aulas.Areas.Identity.Pages.Account {
       }
 
       private IUserEmailStore<IdentityUser> GetEmailStore() {
-         if(!_userManager.SupportsUserEmail) {
+         if (!_userManager.SupportsUserEmail) {
             throw new NotSupportedException("The default UI requires a user store with email support.");
          }
          return (IUserEmailStore<IdentityUser>)_userStore;
